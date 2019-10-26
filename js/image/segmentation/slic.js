@@ -204,6 +204,86 @@ function(BaseSegmentation, compat) {
     }
   }
 
+
+		//	int[] labels, // input label that needs to be corrected to remove stray labels == segmentation
+        //    int width,
+        //    int height,
+        //    int[] nlabels,// new labels, we will now update the original segmentation within the function
+        //    int numlabels,// the number of labels changes in the end if segments are removed
+        //    int K) // The number of superpixel desired by the user // we now provide minRegionSize directly
+			
+  function fillArray(array, value) {
+    for (var i = 0; i < array.length; ++i)
+      array[i] = value;
+    return array;
+  }
+			
+  function  enforceLabelConnectivity (labels,
+									imW ,
+									imH ,
+									minRegionSize) {
+    var dx4 = [-1,  0,  1,  0],
+        dy4 = [ 0, -1,  0,  1],
+        size = imW * imH,
+        SUPSZ = minRegionSize, //Math.floor(size / K),
+		nlabels = fillArray(new Int32Array(size), -1),
+        c, n, x, y, nindex;
+    var label = 0,
+        xvec = new Int32Array(size),
+        yvec = new Int32Array(size),
+        oindex = 0,
+        adjlabel = 0;  // adjacent label
+    for (var j = 0; j < imH; ++j) {
+      for (var k = 0; k < imW; ++k) {
+        if (nlabels[oindex] < 0) {
+          nlabels[oindex] = label;
+          // Start a new segment.
+          xvec[0] = k;
+          yvec[0] = j;
+          //  Quickly find an adjacent label for use later if needed.
+          for (n = 0; n < 4; ++n) {
+            x = Math.floor(xvec[0] + dx4[n]);
+            y = Math.floor(yvec[0] + dy4[n]);
+            if ((x >= 0 && x < imW) && (y >= 0 && y < imH)) {
+              nindex = Math.floor(y * imW + x);
+              if (nlabels[nindex] >= 0)
+                adjlabel = nlabels[nindex];
+            }
+          }
+          var count = 1;
+          for (c = 0; c < count; ++c) {
+            for (n = 0; n < 4; ++n) {
+              x = Math.floor(xvec[c] + dx4[n]);
+              y = Math.floor(yvec[c] + dy4[n]);
+              if ((x >= 0 && x < imW) && (y >= 0 && y < imH)) {
+                nindex = Math.floor(y * imW + x);
+                if (nlabels[nindex] < 0 && labels[oindex] == labels[nindex]) {
+                  xvec[count] = x;
+                  yvec[count] = y;
+                  nlabels[nindex] = label;
+                  ++count;
+                }
+              }
+            }
+          }
+          // If segment size is less then a limit, assign an
+          // adjacent label found before, and decrement label count.
+          if (count <= SUPSZ >> 2) {
+            for (c = 0; c < count; c++ ) {
+              var ind = Math.floor(yvec[c] * imW + xvec[c]);
+              nlabels[ind] = adjlabel;
+            }
+            --label;
+          }
+          ++label;
+        }
+        ++oindex;
+      }
+    }
+	for (var i =0; i < size; ++i) labels[i] = nlabels[i];
+    //return nlabels;
+  }
+
   // Remove small superpixels and assign them the nearest superpixel label.
   function eliminateSmallRegions(segmentation,
                                  minRegionSize,
@@ -452,11 +532,9 @@ function(BaseSegmentation, compat) {
       for (i = 0; i < currentCenters.length; ++i)
         currentCenters[i] = newCenters[i];
     }
-    eliminateSmallRegions(segmentation,
-                          minRegionSize,
-                          numPixels,
-                          imWidth,
-                          imHeight);
+	
+	enforceLabelConnectivity (segmentation, imWidth, imHeight,minRegionSize);
+	eliminateSmallRegions(segmentation, minRegionSize, numPixels,imWidth,imHeight);
     // Refresh the canvas.
     var result = compat.createImageData(imWidth, imHeight);
     result.numSegments = remapLabels(segmentation);

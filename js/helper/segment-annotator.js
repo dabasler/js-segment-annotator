@@ -19,15 +19,14 @@ function (Layer, segmentation, morph) {
   // Segment annotator.
   function Annotator(imageURL, options) {
     options = options || {};
-    if (typeof imageURL !== "string") {
+     if (typeof imageURL !== "string") {
       throw "Invalid imageURL";
     }
-    this.colormap = options.colormap || [[255, 255, 255], [255, 0, 0]];
-    this.boundaryColor = options.boundaryColor || [255, 255, 255];
+    this.colormap = options.colormap || [[255, 0, 0], [255, 0, 0]];
+    this.boundaryColor = options.boundaryColor || [255, 0, 0];
     this.boundaryAlpha = options.boundaryAlpha || 127;
     this.visualizationAlpha = options.visualizationAlpha || 144;
-    this.highlightAlpha = options.highlightAlpha ||
-                          Math.min(255, this.visualizationAlpha + 128);
+    this.highlightAlpha = options.highlightAlpha || Math.min(255, this.visualizationAlpha + 128);
     this.currentZoom = 1.0;
     this.defaultLabel = options.defaultLabel || 0;
     this.maxHistoryRecord = options.maxHistoryRecord || 10;
@@ -54,8 +53,7 @@ function (Layer, segmentation, morph) {
   Annotator.prototype.resetSuperpixels = function (options) {
     options = options || {};
     this.layers.superpixel.copy(this.layers.image);
-    this.segmentation = segmentation.create(this.layers.image.imageData,
-                                            options);
+    this.segmentation = segmentation.create(this.layers.image.imageData,options);
     this._updateSuperpixels(options);
     return this;
   };
@@ -377,6 +375,45 @@ function (Layer, segmentation, morph) {
         }
         annotator._emptyPolygonPoints();
       }
+	  
+	  if (key == 66) { // 'b'
+		var boundaryButton = document.getElementById("boundary-button");
+		if (boundaryButton.classList.contains("edit-image-top-button-enabled"))
+			annotator.hide("boundary");
+		else
+			annotator.show("boundary");
+		boundaryButton.classList.toggle("edit-image-top-button-enabled");
+      }
+	  
+	  
+	 if (key == 73) { // 'i'
+		//alert(annotator.visualizationAlpha);
+		if (annotator.visualizationAlpha == 0){
+			annotator.setAlpha(144);//this.visualizationAlpha - (scale || 1) * 20
+			//annotator.visualizationAlpha = 144;
+		} else {
+			annotator.setAlpha(0);//this.visualizationAlpha - (scale || 1) * 20
+			//this.visualizationAlpha = 0;
+			//this.setAlpha(this.visualizationAlpha - (scale || 1) * 20);
+		}
+      }
+	  
+	  if (key == 190) { // '>'
+		//alert(annotator.currentLabel);
+		annotator.currentLabel=annotator.currentLabel+1;
+		var className = "edit-sidebar-button-selected";
+		var selectedElements = document.getElementsByClassName(className);
+		for (var i = 0; i < selectedElements.length; ++i)
+			selectedElements[i].classList.remove(className);
+		//pickButton.classList.add(className);
+		annotator.highlightLabel(annotator.currentLabel);
+		//annotator.unhighlightLabel();
+      }
+	  
+	  
+
+	  
+	  
     };
   };
 

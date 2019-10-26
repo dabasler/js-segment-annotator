@@ -206,10 +206,22 @@ function(Layer, Annotator, util) {
         spacer6 = document.createElement("div"),
         manualParagraph = document.createElement("p"),
         spacer7 = document.createElement("div"),
-        exportButton = document.createElement("input"),
+        saveButton = document.createElement("input"),
+		spacer8 = document.createElement("div"),
+		exportButton = document.createElement("input"),
         manualText;
+	saveButton.type = "submit";
+    saveButton.value = "save";
+    saveButton.className = "edit-sidebar-submit";
+    saveButton.addEventListener("click", function () {
+      var filename = (data.annotationURLs) ?
+          data.annotationURLs[params.id].split(/[\\/]/).pop() :
+          params.id + ".png";
+		  uploaddURI(annotator.export(), filename);
+      //downloadURI(annotator.export(), filename);
+    });
     exportButton.type = "submit";
-    exportButton.value = "export";
+    exportButton.value = "download";
     exportButton.className = "edit-sidebar-submit";
     exportButton.addEventListener("click", function () {
       var filename = (data.annotationURLs) ?
@@ -262,6 +274,17 @@ function(Layer, Annotator, util) {
 
 
     spacer3.className = "edit-sidebar-spacer";
+	
+	manualParagraph.appendChild(document.createElement("br"));
+	manualParagraph.appendChild(document.createTextNode("i: toggle annotation on/off"));
+    manualParagraph.appendChild(document.createElement("br"));
+	manualParagraph.appendChild(document.createTextNode("b: toggle boundaries on/off"));
+	manualParagraph.appendChild(document.createElement("br"));
+	manualParagraph.appendChild(document.createTextNode(">: next label"));
+	manualParagraph.appendChild(document.createElement("br"));
+	//manualParagraph.appendChild(document.createTextNode("x: toggle superpixel indexing mode"));
+	//manualParagraph.appendChild(document.createElement("br"));
+	manualParagraph.appendChild(document.createElement("br"));
     manualParagraph.appendChild(document.createTextNode("ctrl: toggle mode"));
     manualParagraph.appendChild(document.createElement("br"));
     manualParagraph.appendChild(document.createElement("br"));
@@ -291,6 +314,7 @@ function(Layer, Annotator, util) {
     container.appendChild(brushToolButton);
     container.appendChild(manualParagraph);
     //container.appendChild(spacer4);
+	container.appendChild(saveButton);
     container.appendChild(exportButton);
     return container;
   }
@@ -342,6 +366,8 @@ function(Layer, Annotator, util) {
     });
     return pickButton;
   }
+
+
 
     // Write the brush tool
   Annotator.prototype.brush = function (pos, label) {
@@ -436,7 +462,22 @@ function(Layer, Annotator, util) {
     return select;
   }
 
-  // Download trick.
+  // Upload
+  function uploaddURI(uri, filename) {
+	const formData = new FormData();
+	formData.append('filename', filename);
+	formData.append('data', uri);
+	const url = 'process.php';
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    }).then(response => {
+        console.log(response);
+    });
+  }
+  
+  
+    // Download trick.
   function downloadURI(uri, filename) {
     var anchor = document.createElement("a");
     anchor.style.display = "none";
@@ -448,6 +489,7 @@ function(Layer, Annotator, util) {
     document.body.removeChild(anchor);
   }
 
+
   // Entry point.
   function render(data, params) {
     var id = parseInt(params.id, 10);
@@ -457,7 +499,7 @@ function(Layer, Annotator, util) {
           width: params.width,
           height: params.height,
           colormap: data.colormap,
-          superpixelOptions: { method: "slic", regionSize: 25 },
+          superpixelOptions: { method: "slic", regionSize: 25 }, // Initial size
           onload: function () {
             if (data.annotationURLs)
               annotator.import(data.annotationURLs[id]);
