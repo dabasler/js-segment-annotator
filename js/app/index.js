@@ -31,7 +31,12 @@ function(Pagination, Viewer, util) {
   }
 
   function render(data, params) {
-    var pagination = new Pagination(data.imageURLs.length, params);
+    var pagination = new Pagination(data.imageURLs.length, params),
+		indexAnchor = document.createElement("a"),
+		indexAnchorText = document.createTextNode("Back to project overview");
+	indexAnchor.setAttribute('href', "index.html");
+	indexAnchor.appendChild(indexAnchorText);
+	document.body.appendChild(indexAnchor);
     document.body.appendChild(pagination.render());
     document.body.appendChild(createLabelOptions(params, data.labels));
     for (var i = pagination.begin(); i < pagination.end(); ++i) {
@@ -45,7 +50,7 @@ function(Pagination, Viewer, util) {
                               }),
           anchor = document.createElement("a");
       anchor.appendChild(viewer.container);
-      anchor.href = util.makeQueryParams({ view: "edit",dataset: params.data, id: i });
+      anchor.href = util.makeQueryParams({ view: "edit",dataset: params.dataset, id: i });
       document.body.appendChild(anchor);
     }
   }
