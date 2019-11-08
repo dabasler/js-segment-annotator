@@ -45,7 +45,7 @@ function(Pagination, Viewer, util) {
                               }),
           anchor = document.createElement("a");
       anchor.appendChild(viewer.container);
-      anchor.href = util.makeQueryParams({ view: "edit", id: i });
+      anchor.href = util.makeQueryParams({ view: "edit",dataset: params.data, id: i });
       document.body.appendChild(anchor);
     }
   }

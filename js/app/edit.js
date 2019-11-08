@@ -26,7 +26,7 @@ function(Layer, Annotator, util) {
         prevAnchorText = document.createTextNode("Prev"),
         nextAnchorText = document.createTextNode("Next"),
         prevAnchor, nextAnchor;
-    indexAnchor.href = util.makeQueryParams({ view: "index" });
+    indexAnchor.href = util.makeQueryParams({ view: "index" , dataset: params.data});
     indexAnchor.appendChild(indexAnchorText);
     if (id > 0) {
       prevAnchor = document.createElement("a");
