@@ -398,7 +398,7 @@ function (Layer, segmentation, morph) {
 		}
       }
 	  
-	  if (key == 190) { // '>'
+	  if (key == 78) { // 'n'
 		//alert(annotator.currentLabel);
 		annotator.currentLabel=annotator.currentLabel+1;
 		var className = "edit-sidebar-button-selected";
@@ -409,11 +409,6 @@ function (Layer, segmentation, morph) {
 		annotator.highlightLabel(annotator.currentLabel);
 		//annotator.unhighlightLabel();
       }
-	  
-	  
-
-	  
-	  
     };
   };
 
@@ -442,6 +437,7 @@ function (Layer, segmentation, morph) {
                            .concat([this.visualizationAlpha]);
     layer.fill(initialColor);
     layer.render();
+	document.getElementsByClassName("edit-sidebar-label-frame")[0].style.height=this.height + "px";
   };
 
   Annotator.prototype._updateSuperpixels = function () {

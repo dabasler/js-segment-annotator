@@ -26,7 +26,7 @@ function(Layer, Annotator, util) {
         prevAnchorText = document.createTextNode("Prev"),
         nextAnchorText = document.createTextNode("Next"),
         prevAnchor, nextAnchor;
-    indexAnchor.href = util.makeQueryParams({ view: "index" , dataset: params.data});
+    indexAnchor.href = util.makeQueryParams({ view: "index" , dataset: params.dataset});
     indexAnchor.appendChild(indexAnchorText);
     if (id > 0) {
       prevAnchor = document.createElement("a");
@@ -217,7 +217,7 @@ function(Layer, Annotator, util) {
       var filename = (data.annotationURLs) ?
           data.annotationURLs[params.id].split(/[\\/]/).pop() :
           params.id + ".png";
-		  uploaddURI(annotator.export(), filename);
+		  uploaddURI(annotator.export(), filename,params.dataset);
       //downloadURI(annotator.export(), filename);
     });
     exportButton.type = "submit";
@@ -276,11 +276,11 @@ function(Layer, Annotator, util) {
     spacer3.className = "edit-sidebar-spacer";
 	
 	manualParagraph.appendChild(document.createElement("br"));
-	manualParagraph.appendChild(document.createTextNode("i: toggle annotation on/off"));
+	manualParagraph.appendChild(document.createTextNode("i: toggle annotation"));
     manualParagraph.appendChild(document.createElement("br"));
-	manualParagraph.appendChild(document.createTextNode("b: toggle boundaries on/off"));
+	manualParagraph.appendChild(document.createTextNode("b: toggle boundaries"));
 	manualParagraph.appendChild(document.createElement("br"));
-	manualParagraph.appendChild(document.createTextNode(">: next label"));
+	manualParagraph.appendChild(document.createTextNode("n: next label"));
 	manualParagraph.appendChild(document.createElement("br"));
 	//manualParagraph.appendChild(document.createTextNode("x: toggle superpixel indexing mode"));
 	//manualParagraph.appendChild(document.createElement("br"));
@@ -401,15 +401,20 @@ function(Layer, Annotator, util) {
   // Create the label picker button.
   function createLabelPicker(params, data, annotator) {
     var container = document.createElement("div");
-    container.className = "edit-sidebar-label-picker";
+	container.className = "edit-sidebar-label-frame";
+	container.style.height = params.height + "px";
+	
+    var container1 = document.createElement("div");
+    container1.className = "edit-sidebar-label-picker";
     for (var i = 0; i < data.labels.length; ++i) {
       var labelButton = createLabelButton(data, data.labels[i], i, annotator);
       if (i === 0) {
         annotator.currentLabel = 0;
         labelButton.classList.add("edit-sidebar-button-selected");
       }
-      container.appendChild(labelButton);
+      container1.appendChild(labelButton);
     }
+	container.appendChild(container1);
     window.addEventListener("click", cancelPopup, true);
     return container;
   }
@@ -463,9 +468,10 @@ function(Layer, Annotator, util) {
   }
 
   // Upload
-  function uploaddURI(uri, filename) {
+  function uploaddURI(uri, filename,dataset) {
 	const formData = new FormData();
 	formData.append('filename', filename);
+	formData.append('dataset', dataset);
 	formData.append('data', uri);
 	const url = 'process.php';
     fetch(url, {
