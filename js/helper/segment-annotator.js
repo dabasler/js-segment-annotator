@@ -23,6 +23,7 @@ function (Layer, segmentation, morph) {
       throw "Invalid imageURL";
     }
     this.colormap = options.colormap || [[255, 0, 0], [255, 0, 0]];
+	this.colormaploop =  options.colormaploop || 0;
     this.boundaryColor = options.boundaryColor || [255, 0, 0];
     this.boundaryAlpha = options.boundaryAlpha || 127;
     this.visualizationAlpha = options.visualizationAlpha || 144;
@@ -148,7 +149,7 @@ function (Layer, segmentation, morph) {
         annotator.layers
                  .visualization
                  .copy(this)
-                 .applyColormap(annotator.colormap)
+                 .applyColormap(annotator.colormap,annotator.colormaploop)
                  .setAlpha(annotator.visualizationAlpha)
                  .render();
         this.setAlpha(0).render();
@@ -611,11 +612,15 @@ function (Layer, segmentation, morph) {
         annotationData = this.layers.annotation.imageData.data,
         i,
         color,
-        offset;
+        offset,
+		index;
     if (this.currentPixels !== null) {
       for (i = 0; i < this.currentPixels.length; ++i) {
         offset = this.currentPixels[i];
-        color = this.colormap[_getEncodedLabel(annotationData, offset)];
+		index= _getEncodedLabel(annotationData, offset);
+		if (this.colormaploop> 0 & index > 0) index= index % this.colormaploop +1;
+        color = this.colormap[index];
+		
         visualizationData[offset + 0] = color[0];
         visualizationData[offset + 1] = color[1];
         visualizationData[offset + 2] = color[2];
@@ -652,6 +657,7 @@ function (Layer, segmentation, morph) {
       var offset = pixels[i],
           label = labels[i],
           color = this.colormap[label];
+	 if (this.colormaploop>0 & label > 0) color = this.colormap[(label % this.colormaploop +1)];
       _setEncodedLabel(annotationData, offset, label);
       visualizationData[offset + 0] = color[0];
       visualizationData[offset + 1] = color[1];

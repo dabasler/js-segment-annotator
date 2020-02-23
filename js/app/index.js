@@ -44,6 +44,7 @@ function(Pagination, Viewer, util) {
                                 width: (params.width || 240),
                                 height: (params.height || 320),
                                 colormap: data.colormap,
+								colormaploop: data.colormaploop,
                                 labels: data.labels,
                                 excludedLegends: [0],
                                 overlay: i.toString()

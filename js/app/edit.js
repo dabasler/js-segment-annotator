@@ -326,8 +326,10 @@ function(Layer, Annotator, util) {
         popupButton = document.createElement("div"),
         popupContainer = document.createElement("div");
     colorBox.className = "edit-sidebar-legend-colorbox";
-    colorBox.style.backgroundColor =
-        "rgb(" + data.colormap[index].join(",") + ")";
+	
+	var colindex  = index;
+	if (data.colormaploop>0 & index>0) colindex = (index % data.colormaploop)+1;
+    colorBox.style.backgroundColor = "rgb(" + data.colormap[colindex].join(",") + ")";
     labelText.appendChild(document.createTextNode(value));
     labelText.className = "edit-sidebar-legend-label";
     popupButton.appendChild(document.createTextNode("+"));
@@ -403,6 +405,7 @@ function(Layer, Annotator, util) {
     var container = document.createElement("div");
 	container.className = "edit-sidebar-label-frame";
 	container.style.height = params.height + "px";
+	container.style.overflow = "auto";
 	
     var container1 = document.createElement("div");
     container1.className = "edit-sidebar-label-picker";
@@ -505,6 +508,7 @@ function(Layer, Annotator, util) {
           width: params.width,
           height: params.height,
           colormap: data.colormap,
+		  colormaploop: data.colormaploop,
           superpixelOptions: { method: "slic", regionSize: 25 }, // Initial size
           onload: function () {
             if (data.annotationURLs)
@@ -518,10 +522,31 @@ function(Layer, Annotator, util) {
                 legendActiveClass = "edit-sidebar-legend-label-active",
                 elements = document.getElementsByClassName(legendClass),
                 i;
-            for (i = 0; i < elements.length; ++i)
-              elements[i].classList.remove(legendActiveClass);
-            for (i = 0; i < activeLabels.length; ++i)
-              elements[activeLabels[i]].classList.add(legendActiveClass);
+				if (this.colormaploop==0){
+					for (i = 0; i < elements.length; ++i)
+					  elements[i].classList.remove(legendActiveClass);
+					for (i = 0; i < activeLabels.length; ++i)
+					  elements[activeLabels[i]].classList.add(legendActiveClass);
+				} else {
+					var container = document.getElementsByClassName("edit-sidebar-label-picker")[0];
+					var uniqueLabels =  this.getUniqueLabels();
+					// get one more
+					if (uniqueLabels.length>1){
+						var newid = Math.max.apply(Math, uniqueLabels)+1;
+						uniqueLabels.push(newid);
+					}
+					 for (i = 0; i < uniqueLabels.length; ++i){
+						var label= document.getElementById("label-" + uniqueLabels[i] + "-button")
+						if  (label==null){
+								var labelButton = createLabelButton(data, uniqueLabels[i], uniqueLabels[i], annotator);	 	
+									container.appendChild(labelButton);
+									if (i === 0) {
+										annotator.currentLabel = 0;
+										labelButton.classList.add("edit-sidebar-button-selected");
+									}
+						 }
+					}
+				}
           },
           onrightclick: function (label) {
             document.getElementById("label-" + label + "-button").click();

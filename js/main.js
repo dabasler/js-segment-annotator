@@ -23,10 +23,22 @@ function(indexPage, editPage, colormap, util) {
       }));
   }
 
+  function createColormapLoop(label, n) {
+	var col = [[255, 255, 255],[226, 196, 196], [64, 32, 32]].concat(colormap.create("hsv", {size: n + 1 - 3}));
+	return col;
+  }
+
   // Load dataset before rendering a view.
   function renderPage(renderer) {
     util.requestJSON(dataURL, function(data) {
-      data.colormap = createColormap(params.label, data.labels);
+	
+	if (data.labels[0]=="numbers") {
+		data.colormaploop = parseInt(data.labels[1]);
+		data.colormap = createColormapLoop("all", data.colormaploop);
+		data.labels = ["0"];
+	  }else{
+		data.colormap = createColormap(params.label, data.labels);
+	  }
       renderer(data, params);
     });
   }

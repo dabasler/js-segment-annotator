@@ -14,6 +14,7 @@ define(['../image/layer'], function(Layer) {
   function Viewer(imageURL, annotationURL, options) {
     if (typeof options === "undefined") options = {};
     this.colormap = options.colormap || [[255, 255, 255], [255, 0, 0]];
+	this.colormaploop =  options.colormaploop || 0;
     this.labels = options.labels;
     this._createLayers(imageURL, annotationURL, options);
     var viewer = this;
@@ -102,20 +103,22 @@ define(['../image/layer'], function(Layer) {
         index.push(i);
     }
     legendContainer.classList.add("segment-viewer-legend-container");
-    for (i = 0; i < index.length; ++i) {
-      var label = this.labels[index[i]],
-          color = this.colormap[index[i]],
-          legendItem = document.createElement("div"),
-          colorbox = document.createElement("span"),
-          legendLabel = document.createElement("span");
-      colorbox.classList.add("segment-viewer-legend-colorbox");
-      colorbox.style.backgroundColor = "rgb(" + color.join(",") + ")";
-      legendItem.classList.add("segment-viewer-legend-item");
-      legendLabel.appendChild(document.createTextNode(" " + label));
-      legendLabel.classList.add("segment-viewer-legend-label");
-      legendItem.appendChild(colorbox);
-      legendItem.appendChild(legendLabel);
-      legendContainer.appendChild(legendItem);
+	if (this.colormaploop == 0){
+		for (i = 0; i < index.length; ++i) {
+		  var label = this.labels[index[i]],
+			  color = this.colormap[index[i]],
+			  legendItem = document.createElement("div"),
+			  colorbox = document.createElement("span"),
+			  legendLabel = document.createElement("span");
+		  colorbox.classList.add("segment-viewer-legend-colorbox");
+		  colorbox.style.backgroundColor = "rgb(" + color.join(",") + ")";
+		  legendItem.classList.add("segment-viewer-legend-item");
+		  legendLabel.appendChild(document.createTextNode(" " + label));
+		  legendLabel.classList.add("segment-viewer-legend-label");
+		  legendItem.appendChild(colorbox);
+		  legendItem.appendChild(legendLabel);
+		  legendContainer.appendChild(legendItem);
+	  }
     }
     this.container.appendChild(legendContainer);
   };
