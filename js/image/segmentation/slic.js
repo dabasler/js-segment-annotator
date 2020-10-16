@@ -7,7 +7,7 @@
  *    IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 34,
  *    num. 11, p. 2274 - 2282, May 2012.
  *
- * and based on the VLFeat implementation.
+ * and based on the VLFeat2014  LongLong Yu. implementation.
  *
  * API
  * ---
@@ -533,7 +533,7 @@ function(BaseSegmentation, compat) {
         currentCenters[i] = newCenters[i];
     }
 	
-	enforceLabelConnectivity (segmentation, imWidth, imHeight,minRegionSize);
+	//enforceLabelConnectivity (segmentation, imWidth, imHeight,minRegionSize);
 	eliminateSmallRegions(segmentation, minRegionSize, numPixels,imWidth,imHeight);
     // Refresh the canvas.
     var result = compat.createImageData(imWidth, imHeight);

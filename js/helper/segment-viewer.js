@@ -76,7 +76,7 @@ define(['../image/layer'], function(Layer) {
     var viewer = this;
     this.layers.visualization.process(function () {
       var uniqueIndex = getUniqueIndex(this.imageData.data);
-      this.applyColormap(viewer.colormap);
+      this.applyColormap(viewer.colormap,viewer.colormaploop);
       this.setAlpha(192);
       this.render();
       if (viewer.labels)

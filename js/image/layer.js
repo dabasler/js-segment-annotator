@@ -154,13 +154,13 @@ define(function() {
     return this;
   };
 
-  Layer.prototype.applyColormap = function (colormap, grayscale) {
+  Layer.prototype.applyColormap = function (colormap, colormaploop, grayscale) {
     var data = this.imageData.data;
     if (typeof grayscale === "undefined") grayscale = true;
     for (var i = 0; i < data.length; i += 4) {
       var index = data[i];
-      if (!grayscale)
-        index |= (data[i + 1] << 8) | (data[i + 2] << 16);
+      if (!grayscale) index |= (data[i + 1] << 8) | (data[i + 2] << 16);
+	  if (colormaploop > 0 & index > 0) index = (index % colormaploop) +1;
       data[i + 0] = colormap[index][0];
       data[i + 1] = colormap[index][1];
       data[i + 2] = colormap[index][2];
@@ -206,8 +206,8 @@ define(function() {
   Layer.prototype.gray2index = function () {
     var data = this.imageData.data;
     for (var i = 0; i < data.length; i += 4) {
-      data[i + 1] = 0;
-      data[i + 2] = 0;
+      data[i + 1] = 255;
+      data[i + 2] = 255;
     }
     return this;
   };

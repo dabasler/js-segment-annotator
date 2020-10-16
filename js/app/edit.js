@@ -204,10 +204,12 @@ function(Layer, Annotator, util) {
         spacer5 = document.createElement("div"),
         brushToolButton = document.createElement("div"),
         spacer6 = document.createElement("div"),
+		bucketToolButton = document.createElement("div"),
+        spacer8 = document.createElement("div"),
         manualParagraph = document.createElement("p"),
-        spacer7 = document.createElement("div"),
+        spacer9 = document.createElement("div"),
         saveButton = document.createElement("input"),
-		spacer8 = document.createElement("div"),
+		spacer10 = document.createElement("div"),
 		exportButton = document.createElement("input"),
         manualText;
 	saveButton.type = "submit";
@@ -248,6 +250,7 @@ function(Layer, Annotator, util) {
     superpixelToolButton.addEventListener("click", function () {
       polygonToolButton.classList.remove("edit-sidebar-button-selected");
       brushToolButton.classList.remove("edit-sidebar-button-selected");
+	  bucketToolButton.classList.remove("edit-sidebar-button-selected");
       superpixelToolButton.classList.add("edit-sidebar-button-selected");
       annotator._setMode("superpixel");
     });
@@ -257,6 +260,7 @@ function(Layer, Annotator, util) {
     polygonToolButton.addEventListener("click", function () {
       superpixelToolButton.classList.remove("edit-sidebar-button-selected");
       brushToolButton.classList.remove("edit-sidebar-button-selected");
+	  bucketToolButton.classList.remove("edit-sidebar-button-selected");
       polygonToolButton.classList.add("edit-sidebar-button-selected");
       annotator._setMode("polygon");
     });
@@ -270,6 +274,18 @@ function(Layer, Annotator, util) {
       brushToolButton.classList.add("edit-sidebar-button-selected");
 
       annotator._setMode("brush");
+    });
+
+
+    bucketToolButton.classList.add("edit-sidebar-button-selected");
+    bucketToolButton.className = "edit-sidebar-button";
+    bucketToolButton.appendChild(document.createTextNode("Bucket tool"));
+    bucketToolButton.addEventListener("click", function () {
+      superpixelToolButton.classList.remove("edit-sidebar-button-selected");
+      polygonToolButton.classList.remove("edit-sidebar-button-selected");
+      bucketToolButton.classList.add("edit-sidebar-button-selected");
+
+      annotator._setMode("bucket");
     });
 
 
@@ -312,6 +328,7 @@ function(Layer, Annotator, util) {
     container.appendChild(polygonToolButton);
     container.appendChild(superpixelToolButton);
     container.appendChild(brushToolButton);
+	container.appendChild(bucketToolButton);
     container.appendChild(manualParagraph);
     //container.appendChild(spacer4);
 	container.appendChild(saveButton);
@@ -388,6 +405,8 @@ function(Layer, Annotator, util) {
     if (typeof this.onchange === "function")
       this.onchange.call(this);
   };
+
+ // Bucket Tool is defined in segment-annotator directly
 
   // Hightlight legend labels.
   function highlightLabel(label) {
@@ -517,17 +536,7 @@ function(Layer, Annotator, util) {
             boundaryFlash();
           },
           onchange: function () {
-            var activeLabels = this.getUniqueLabels(),
-                legendClass = "edit-sidebar-legend-label",
-                legendActiveClass = "edit-sidebar-legend-label-active",
-                elements = document.getElementsByClassName(legendClass),
-                i;
-				if (this.colormaploop==0){
-					for (i = 0; i < elements.length; ++i)
-					  elements[i].classList.remove(legendActiveClass);
-					for (i = 0; i < activeLabels.length; ++i)
-					  elements[activeLabels[i]].classList.add(legendActiveClass);
-				} else {
+				if (this.colormaploop>0){ // populate list with labels present in image
 					var container = document.getElementsByClassName("edit-sidebar-label-picker")[0];
 					var uniqueLabels =  this.getUniqueLabels();
 					// get one more
@@ -546,6 +555,22 @@ function(Layer, Annotator, util) {
 									}
 						 }
 					}
+				}
+				var activeLabels = this.getUniqueLabels(),
+                legendClass = "edit-sidebar-legend-label",
+                legendActiveClass = "edit-sidebar-legend-label-active",
+                elements = document.getElementsByClassName(legendClass),
+                i;	
+
+				for (i = 0; i < elements.length; ++i)
+					  elements[i].classList.remove(legendActiveClass);
+				
+				if (this.colormaploop>0){				
+					for (i = 0; i < activeLabels.length; ++i)
+					  elements[i].classList.add(legendActiveClass);
+				} else{ 				
+					for (i = 0; i < activeLabels.length; ++i)
+					  elements[activeLabels[i]].classList.add(legendActiveClass);
 				}
           },
           onrightclick: function (label) {

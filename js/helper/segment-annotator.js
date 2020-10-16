@@ -337,13 +337,30 @@ function (Layer, segmentation, morph) {
             annotator.brush(annotator._getClickPos(event),
                             annotator.currentLabel);
           }
+		  if (annotator.mode === "bucket" && event.button === 0) {
+				var oldLabel = _getEncodedLabel(annotationData, annotator._getClickOffset(event));
+				var newLabel = annotator.currentLabel;
+				if ( (oldLabel !== newLabel) & oldLabel > 0) {
+						annotator.fill(oldLabel);
+					}
+          }
           if (event.button === 0 && annotator.mode === "polygon") {
             annotator._addPolygonPoint(event);
             if (annotator._checkLineIntersection())
               annotator._addPolygonToAnnotation();
           } else if (annotator.mode === "superpixel") {
-            annotator._updateAnnotation(pixels, annotator.currentLabel);
-          }
+		  /*
+			if (event.shiftKey) {
+				for (var i = 0; i < pixels.length; ++i) {
+					var oldLabel = _getEncodedLabel(annotationData, pixels[i]);		
+					var newLabel = annotator.currentLabel;
+					if ( (oldLabel !== newLabel) & oldLabel > 0) {
+						annotator.fill(oldLabel);
+					}
+				 }
+			} else {...} */
+			annotator._updateAnnotation(pixels, annotator.currentLabel);
+		}
           if (typeof annotator.onleftclick === "function")
             annotator.onleftclick.call(annotator, annotator.currentLabel);
         }
@@ -617,10 +634,9 @@ function (Layer, segmentation, morph) {
     if (this.currentPixels !== null) {
       for (i = 0; i < this.currentPixels.length; ++i) {
         offset = this.currentPixels[i];
-		index= _getEncodedLabel(annotationData, offset);
-		if (this.colormaploop> 0 & index > 0) index= index % this.colormaploop +1;
+		index = _getEncodedLabel(annotationData, offset);
+		if (this.colormaploop> 0 & index > 0) index= (index % this.colormaploop) +1;
         color = this.colormap[index];
-		
         visualizationData[offset + 0] = color[0];
         visualizationData[offset + 1] = color[1];
         visualizationData[offset + 2] = color[2];
@@ -657,7 +673,7 @@ function (Layer, segmentation, morph) {
       var offset = pixels[i],
           label = labels[i],
           color = this.colormap[label];
-	 if (this.colormaploop>0 & label > 0) color = this.colormap[(label % this.colormaploop +1)];
+	 if (this.colormaploop>0 & label > 0) color = this.colormap[(label % this.colormaploop) +1];
       _setEncodedLabel(annotationData, offset, label);
       visualizationData[offset + 0] = color[0];
       visualizationData[offset + 1] = color[1];
